@@ -45,3 +45,17 @@ export * from './ledger/settlement';
 export * from './utils/types';
 export * from './utils/logging';
 export * from './utils/crypto';
+
+// ============================================================
+// FUTURE / ROADMAP (Not Active)
+// ============================================================
+// The following modules are preserved in src/future/ for when
+// XRPL supports PQC signatures:
+//
+// - future/security/pqc/     → Post-quantum crypto policies
+// - future/attest/           → Hybrid attestation suites
+// - future/optimizers/dwave/ → D-Wave rotation optimizer
+// - future/pie.crypto.ts     → PIE crypto policy fields
+//
+// See: src/future/README.md and docs/pqc-readiness.md
+// ============================================================
