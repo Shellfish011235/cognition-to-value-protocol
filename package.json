@@ -1,0 +1,37 @@
+{
+  "name": "cognition-to-value-protocol",
+  "version": "1.0.0",
+  "description": "Modular, Auditable, Ledger-Native Intelligence Architecture implementing OODA → LEAR → FEYNMAN → PIE → CAR protocol",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src/**/*.ts",
+    "test": "jest",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "xrpl",
+    "ilp",
+    "cognition",
+    "ai-safety",
+    "payment-intent",
+    "ledger",
+    "protocol"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "xrpl": "^3.0.0",
+    "uuid": "^9.0.0",
+    "zod": "^3.22.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

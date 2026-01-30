@@ -1,0 +1,21 @@
+{
+  "intentId": "550e8400-e29b-41d4-a716-446655440000",
+  "action": "send",
+  "amount": {
+    "value": "100.00",
+    "currency": "XRP"
+  },
+  "destination": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+  "constraints": {
+    "maxSlippage": 0.01,
+    "maxFee": "0.001",
+    "expiry": 1735689600
+  },
+  "riskBounds": {
+    "maxVolatility": 0.1,
+    "complianceFlags": ["AML_VERIFIED", "KYC_COMPLETE"]
+  },
+  "allowedRoutes": ["direct", "xrpl-dex"],
+  "requiredProofs": ["signature", "intent-hash"],
+  "explanation": "Scheduled payment to verified recipient for service invoice #12345. Amount within daily limit. Recipient previously verified."
+}
