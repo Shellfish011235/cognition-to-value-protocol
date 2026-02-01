@@ -266,6 +266,45 @@ See `docs/threat-model.md`.
 
 ---
 
+## 🏛️ Industry Alignment & External Support
+
+The **Cognition-to-Value Protocol** aligns with emerging industry best practices for building **safe, guardrail-enabled agentic AI systems**, particularly around the separation of probabilistic reasoning from deterministic execution.
+
+This design pattern closely mirrors guidance published by **NVIDIA** on securing agentic AI workflows:
+
+### NVIDIA Reference: *Safeguarding Agentic AI Systems*
+
+NVIDIA's official AI safety guidance emphasizes:
+- Separating AI reasoning from execution authority  
+- Policy-gated and deterministic enforcement layers  
+- Guardrails against goal drift, hallucination, and prompt injection  
+- Human-in-the-loop or cryptographically enforced approval for high-risk actions  
+
+**Source:**  
+[Safeguard Agentic AI Systems with the NVIDIA Safety Recipe](https://developer.nvidia.com/blog/safeguard-agentic-ai-systems-with-the-nvidia-safety-recipe/)
+
+### Architectural Parallel
+
+Both approaches follow the same core principle:
+
+> **AI systems may propose intents, but deterministic systems decide what is allowed to execute.**
+
+In Cognition-to-Value:
+- **Cognition (LLM / agent)** proposes bounded intents  
+- **FEYNMAN** enforces explainability  
+- **PIE** constrains intent structure and risk  
+- **CAR** deterministically validates, attests, and routes actions  
+- **Ledger rails (XRPL / ILP)** enforce final settlement  
+
+This mirrors NVIDIA's recommended separation between probabilistic AI behavior and safety-critical execution layers in agentic systems.
+
+### Scope Clarification
+
+> ⚠️ **This project is not affiliated with, endorsed by, or derived from NVIDIA.**  
+> The reference is included solely to demonstrate **independent convergence** on shared safety architecture patterns used in high-risk domains such as finance, infrastructure, and autonomous systems.
+
+---
+
 ## 📜 License
 
 MIT — protocol is open, execution is bounded.
