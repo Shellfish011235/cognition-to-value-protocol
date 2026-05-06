@@ -1,6 +1,6 @@
 {
   "name": "cognition-to-value-protocol",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Modular, Auditable, Ledger-Native Intelligence Architecture implementing OODA → LEAR → FEYNMAN → PIE → CAR protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,6 +10,13 @@
     "lint": "eslint src/**/*.ts",
     "test": "jest",
     "clean": "rm -rf dist"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.ts"
+    ]
   },
   "keywords": [
     "xrpl",
@@ -23,7 +30,10 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^29.5.12",
     "@types/node": "^20.0.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
     "typescript": "^5.0.0"
   },
   "dependencies": {
