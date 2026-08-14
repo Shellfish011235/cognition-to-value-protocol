@@ -69,8 +69,9 @@ export function evaluatePolicy(context: PolicyContext): PolicyResult {
     return { decision: 'SIMULATE_FIRST', reasons: ['blast radius requires pre-action simulation'] };
   }
 
-  if (envelope.requiredApprovals.length > 0 && !envelope.requiredApprovals.includes('policy-engine')) {
-    return { decision: 'REQUIRE_HUMAN', reasons: ['additional approvals required'] };
+  const additionalApprovals = envelope.requiredApprovals.filter((approval) => approval !== 'policy-engine');
+  if (additionalApprovals.length > 0) {
+    return { decision: 'REQUIRE_HUMAN', reasons: [`additional approvals required: ${additionalApprovals.join(', ')}`] };
   }
 
   return { decision: 'ALLOW', reasons: ['identity, signature, scope, tools, expiry, and OODA checks passed'] };
