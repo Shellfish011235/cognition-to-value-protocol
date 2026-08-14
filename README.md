@@ -11,6 +11,27 @@
 
 ---
 
+## 🛡️ Defensive OODA v2 (active draft)
+
+Defensive OODA v2 extends the original protocol into a **zero-trust agent control plane**. It is designed to govern autonomous or semi-autonomous agents without allowing probabilistic model output to become direct execution authority.
+
+Current v2 controls include:
+- explicit expiring agent identities with public keys, scopes, tool allowlists, and capability profiles
+- bounded Capability/Policy Intent Envelopes for non-payment actions as well as payment intents
+- Ed25519 signing and verification of capability requests
+- deterministic authorization decisions: `ALLOW`, `DENY`, `REQUIRE_HUMAN`, or `SIMULATE_FIRST`
+- provenance/trust graphs connecting sources → evidence → hypotheses → decisions → actions → results
+- downstream trust revocation when a source or dependency is later found compromised
+- non-executing Shadow OODA comparison to challenge primary orientation and expected effects
+- rollback, expiry, blast-radius, and approval requirements before consequential actions
+- scoped GitHub Actions CI with adversarial fail-closed tests
+
+The design goal is not to build another autonomous security agent. It is to provide the **trust, authorization, provenance, and execution-control layer around agents** so no individual agent becomes sovereign.
+
+See [`docs/defensive-ooda-v2.md`](./docs/defensive-ooda-v2.md) for the current architecture and roadmap.
+
+---
+
 ## 📌 What This Repo Is
 
 - A **reference implementation scaffold**
@@ -314,6 +335,7 @@ MIT — protocol is open, execution is bounded.
 ## 🧭 Status
 
 - ✅ Stable protocol v1
+- ⚠️ Defensive OODA v2 is an active draft under test
 - ⚠️ Safe for experimentation with personal funds only
 - 🚫 Not production-ready for third-party assets
 
