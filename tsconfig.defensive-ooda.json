@@ -10,6 +10,8 @@
     "src/pie/capabilityEnvelope.ts",
     "src/trust/provenanceGraph.ts",
     "src/ooda/shadow.ts",
+    "src/security/signatures.ts",
+    "src/policy/policyEngine.ts",
     "src/tests/defensiveOoda.test.ts"
   ],
   "exclude": [
