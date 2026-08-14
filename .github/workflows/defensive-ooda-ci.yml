@@ -1,0 +1,33 @@
+name: Defensive OODA CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [agent/defensive-ooda-v2]
+
+permissions:
+  contents: read
+
+jobs:
+  defensive-ooda:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Compile and test Defensive OODA
+        run: npm run test:defensive-ooda
+
+      - name: Audit high-severity dependencies
+        run: npm audit --audit-level=high
