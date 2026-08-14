@@ -1,11 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { generateKeyPairSync } from 'node:crypto';
 import { isAgentIdentityActive, AgentIdentity } from '../identity/agentIdentity';
-import { validateCapabilityEnvelope } from '../pie/capabilityEnvelope';
+import { validateCapabilityEnvelope, CapabilityEnvelope } from '../pie/capabilityEnvelope';
 import { ProvenanceGraph } from '../trust/provenanceGraph';
 import { comparePrimaryToShadow } from '../ooda/shadow';
+import { signCapabilityEnvelope, verifySignedCapabilityEnvelope } from '../security/signatures';
+import { evaluatePolicy } from '../policy/policyEngine';
 
 const now = 1_700_000_000_000;
+const keys = generateKeyPairSync('ed25519');
+const publicKey = keys.publicKey.export({ type: 'spki', format: 'pem' }).toString();
+const privateKey = keys.privateKey.export({ type: 'pkcs8', format: 'pem' }).toString();
 
 function identity(overrides: Partial<AgentIdentity> = {}): AgentIdentity {
   return {
@@ -13,24 +19,18 @@ function identity(overrides: Partial<AgentIdentity> = {}): AgentIdentity {
     version: '1.0.0',
     owner: 'shellfish',
     role: 'observer',
-    publicKey: 'ed25519:test-key',
-    allowedTools: ['ledger.read'],
+    publicKey,
+    allowedTools: ['ledger.read', 'firewall.rate_limit'],
     allowedDataScopes: ['xrpl.public'],
-    capabilityProfile: ['observe'],
+    capabilityProfile: ['observe', 'rate_limit'],
     issuedAt: now - 1_000,
     expiresAt: now + 60_000,
     ...overrides,
   };
 }
 
-test('AgentIdentity accepts active identity and rejects expired/not-yet-active identity', () => {
-  assert.equal(isAgentIdentityActive(identity(), now), true);
-  assert.equal(isAgentIdentityActive(identity({ expiresAt: now }), now), false);
-  assert.equal(isAgentIdentityActive(identity({ issuedAt: now + 1 }), now), false);
-});
-
-test('CapabilityEnvelope accepts a bounded valid request', () => {
-  const parsed = validateCapabilityEnvelope({
+function capability(overrides: Partial<CapabilityEnvelope> = {}): CapabilityEnvelope {
+  return validateCapabilityEnvelope({
     intentId: 'intent-1',
     agentId: 'observer-1',
     action: 'rate_limit',
@@ -48,8 +48,18 @@ test('CapabilityEnvelope accepts a bounded valid request', () => {
     },
     requiredApprovals: ['policy-engine'],
     rollbackProcedure: 'Remove temporary rate limit after expiry.',
+    ...overrides,
   });
+}
 
+test('AgentIdentity accepts active identity and rejects expired/not-yet-active identity', () => {
+  assert.equal(isAgentIdentityActive(identity(), now), true);
+  assert.equal(isAgentIdentityActive(identity({ expiresAt: now }), now), false);
+  assert.equal(isAgentIdentityActive(identity({ issuedAt: now + 1 }), now), false);
+});
+
+test('CapabilityEnvelope accepts a bounded valid request', () => {
+  const parsed = capability();
   assert.equal(parsed.action, 'rate_limit');
   assert.equal(parsed.constraints.maxActions, 1);
 });
@@ -97,6 +107,22 @@ test('ProvenanceGraph traces downstream impact from a poisoned source', () => {
   assert.equal(affected.has('unrelated'), false);
 });
 
+test('ProvenanceGraph revokes poisoned source and all downstream dependents', () => {
+  const graph = new ProvenanceGraph();
+  graph.addNode({ id: 'src', type: 'source', trust: 1, createdAt: now });
+  graph.addNode({ id: 'ev', type: 'evidence', trust: 1, createdAt: now });
+  graph.addNode({ id: 'decision', type: 'decision', trust: 0.9, createdAt: now });
+  graph.addNode({ id: 'unrelated', type: 'evidence', trust: 1, createdAt: now });
+  graph.addEdge({ from: 'src', to: 'ev', relation: 'produced', createdAt: now });
+  graph.addEdge({ from: 'ev', to: 'decision', relation: 'informed', createdAt: now });
+
+  const impact = graph.revokeNode('src', 'source attestation failed', now);
+  assert.equal(impact.revokedSource.revoked, true);
+  assert.equal(graph.getNode('ev')?.trust, 0);
+  assert.equal(graph.getNode('decision')?.revoked, true);
+  assert.equal(graph.getNode('unrelated')?.trust, 1);
+});
+
 test('ProvenanceGraph rejects invalid trust and edges with missing endpoints', () => {
   const graph = new ProvenanceGraph();
   assert.throws(() => graph.addNode({ id: 'bad', type: 'source', trust: 1.1, createdAt: now }));
@@ -124,4 +150,56 @@ test('Shadow OODA triggers review on materially divergent orientation', () => {
   assert.equal(result.requiresReview, true);
   assert.deepEqual(result.missingEvidence, ['ev-2']);
   assert.deepEqual(result.unexpectedEffects, ['service-impact']);
+});
+
+test('Signed capability verifies and tampering invalidates the signature', () => {
+  const envelope = capability();
+  const signed = signCapabilityEnvelope(envelope, envelope.agentId, privateKey);
+  assert.equal(verifySignedCapabilityEnvelope(signed, publicKey), true);
+
+  const tampered = {
+    ...signed,
+    envelope: { ...signed.envelope, target: 'ip:198.51.100.8' },
+  };
+  assert.equal(verifySignedCapabilityEnvelope(tampered, publicKey), false);
+});
+
+test('Policy Engine allows a valid bounded signed action', () => {
+  const envelope = capability();
+  const signed = signCapabilityEnvelope(envelope, envelope.agentId, privateKey);
+  const result = evaluatePolicy({ identity: identity(), signedCapability: signed, now });
+  assert.equal(result.decision, 'ALLOW');
+});
+
+test('Policy Engine denies forged, revoked, expired, or over-scoped authority', () => {
+  const envelope = capability();
+  const signed = signCapabilityEnvelope(envelope, envelope.agentId, privateKey);
+
+  const forged = { ...signed, signature: Buffer.from('forged').toString('base64') };
+  assert.equal(evaluatePolicy({ identity: identity(), signedCapability: forged, now }).decision, 'DENY');
+  assert.equal(evaluatePolicy({ identity: identity(), signedCapability: signed, now, revokedAgentIds: new Set(['observer-1']) }).decision, 'DENY');
+
+  const expiredEnvelope = capability({ constraints: { ...envelope.constraints, expiresAt: now } });
+  const expiredSigned = signCapabilityEnvelope(expiredEnvelope, expiredEnvelope.agentId, privateKey);
+  assert.equal(evaluatePolicy({ identity: identity(), signedCapability: expiredSigned, now }).decision, 'DENY');
+
+  const overScoped = capability({ allowedTools: ['firewall.admin'] });
+  const overScopedSigned = signCapabilityEnvelope(overScoped, overScoped.agentId, privateKey);
+  assert.equal(evaluatePolicy({ identity: identity(), signedCapability: overScopedSigned, now }).decision, 'DENY');
+});
+
+test('Policy Engine escalates Shadow OODA divergence to human review', () => {
+  const envelope = capability();
+  const signed = signCapabilityEnvelope(envelope, envelope.agentId, privateKey);
+  const shadow = comparePrimaryToShadow(
+    { hypothesis: 'brute-force', confidence: 0.95, expectedEffects: ['rate-limit'], evidenceIds: ['ev-1'] },
+    { hypothesis: 'internal-automation', confidence: 0.3, expectedEffects: ['service-impact'], evidenceIds: ['ev-2'] },
+  );
+  assert.equal(evaluatePolicy({ identity: identity(), signedCapability: signed, shadow, now }).decision, 'REQUIRE_HUMAN');
+});
+
+test('Policy Engine requires simulation for broader blast radius', () => {
+  const envelope = capability({ constraints: { ...capability().constraints, maxImpact: 'multi-system' } });
+  const signed = signCapabilityEnvelope(envelope, envelope.agentId, privateKey);
+  assert.equal(evaluatePolicy({ identity: identity(), signedCapability: signed, now }).decision, 'SIMULATE_FIRST');
 });
