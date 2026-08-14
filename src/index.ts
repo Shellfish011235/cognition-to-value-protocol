@@ -1,10 +1,9 @@
 /**
- * Cognition-to-Value Protocol v1
- * 
- * Main entry point for the protocol implementation.
- * 
+ * Cognition-to-Value Protocol
+ *
  * Architecture: OODA → LEAR → FEYNMAN → PIE → CAR → Ledger
- * 
+ * Defensive OODA v2 adds identity, bounded capabilities, provenance, and shadow verification.
+ *
  * @module cognition-to-value-protocol
  */
 
@@ -13,6 +12,10 @@ export * from './ooda/observe';
 export * from './ooda/orient';
 export * from './ooda/decide';
 export * from './ooda/act';
+export * from './ooda/shadow';
+
+// Agent identity / authorization
+export * from './identity/agentIdentity';
 
 // LEAR - Adaptive Intelligence
 export * from './lear/learn';
@@ -26,9 +29,13 @@ export * from './feynman/simplify';
 export * from './feynman/test';
 export * from './feynman/reject';
 
-// PIE - Payment Intent Envelope
+// PIE - Payment / Policy Intent Envelopes
 export * from './pie/pie.schema';
 export * from './pie/validateEnvelope';
+export * from './pie/capabilityEnvelope';
+
+// Provenance / trust graph
+export * from './trust/provenanceGraph';
 
 // CAR - Execution Gate
 export * from './car/compute';
