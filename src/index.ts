@@ -2,7 +2,8 @@
  * Cognition-to-Value Protocol
  *
  * Architecture: OODA → LEAR → FEYNMAN → PIE → CAR → Ledger
- * Defensive OODA v2 adds identity, bounded capabilities, provenance, and shadow verification.
+ * Defensive OODA v2 adds identity, bounded capabilities, provenance, signatures,
+ * deterministic policy, and shadow verification.
  *
  * @module cognition-to-value-protocol
  */
@@ -16,6 +17,8 @@ export * from './ooda/shadow';
 
 // Agent identity / authorization
 export * from './identity/agentIdentity';
+export * from './security/signatures';
+export * from './policy/policyEngine';
 
 // LEAR - Adaptive Intelligence
 export * from './lear/learn';
