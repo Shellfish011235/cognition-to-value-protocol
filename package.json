@@ -6,10 +6,12 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "build:defensive-ooda": "tsc -p tsconfig.defensive-ooda.json",
     "dev": "tsc --watch",
     "lint": "eslint src/**/*.ts",
     "test": "npm run build && node --test dist/tests/*.test.js",
-    "clean": "rm -rf dist"
+    "test:defensive-ooda": "npm run build:defensive-ooda && node --test dist-defensive-ooda/tests/*.test.js",
+    "clean": "rm -rf dist dist-defensive-ooda"
   },
   "keywords": [
     "xrpl",
