@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  defensive-ooda:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -26,8 +26,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Compile TypeScript
-        run: npm run build
+      - name: Compile and test Defensive OODA
+        run: npm run test:defensive-ooda
 
-      - name: Run Defensive OODA tests
-        run: npm test
+      - name: Audit high-severity dependencies
+        run: npm audit --audit-level=high
