@@ -35,11 +35,19 @@ export * from './car/compute';
 export * from './car/validate';
 export * from './car/attest';
 export * from './car/route';
+export * from './car/xrplPolicyValidate';
 
 // Ledger
 export * from './ledger/xrpl';
 export * from './ledger/ilp';
 export * from './ledger/settlement';
+
+// v1.1 Safety Profile - additive modules
+export * from './permissions/modes';
+export * from './xrpl/xrpl-intent.schema';
+export * from './security/promptFirewall';
+export * from './compliance/complianceGuard';
+export * from './receipts/taskReceipt';
 
 // Utilities
 export * from './utils/types';
