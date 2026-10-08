@@ -1,12 +1,14 @@
 # Glossary
 
+Concept terminology updated October 8, 2026. Definitions describe architectural roles; they do not certify the scaffold's implementation. See [current limitations](../README.md#repository-limitations-that-matter).
+
 ## Protocol Components
 
 ### CAR (Compute / Validate / Attest / Route)
-The deterministic execution gate. Contains no AI/ML components. Responsible for pathfinding, validation, cryptographic attestation, and ledger submission.
+The deterministic execution gate. Its enforcement decisions are deterministic rather than AI/ML judgments. Responsible for route computation, validation, artifact attestation and permitted adapter routing. Actual settlement requires its own authority and implementation.
 
 ### FEYNMAN (Explain / Simplify / Test / Reject)
-The epistemic layer responsible for truth compression and hallucination defense. Named after Richard Feynman's principle that if you can't explain something simply, you don't understand it.
+The evidence and explanation layer responsible for making claims understandable, testing them against sources and rejecting unsupported assertions. Explainability does not guarantee truth or eliminate hallucinations. Named after Richard Feynman's principle that if you can't explain something simply, you don't understand it.
 
 ### ILP (Interledger Protocol)
 An open protocol for payments across different payment networks.
@@ -28,7 +30,7 @@ A decentralized public blockchain built for payments.
 ## Technical Terms
 
 ### Attestation
-Cryptographic proof that a validation has occurred. In CAR, attestation confirms that an envelope has passed all checks.
+A signed statement bound to an artifact. Verification can establish who signed which data, subject to the cryptographic implementation and key trust. It does not independently prove the statement is true, establish wallet authority or replace outcome verification. The current scaffold's cryptography is placeholder code.
 
 ### Bounded Intent
 A transaction proposal with explicit limits on amount, slippage, fees, and expiry. Contrast with unbounded/open-ended actions.
@@ -78,6 +80,26 @@ A formal definition of data structure. PIE schema defines valid envelope format.
 A minimal implementation that satisfies an interface without full functionality. Used during development.
 
 ---
+
+## Extended Operating Terms
+
+### Execution Grant
+A separately issued authorization artifact for an exact operation, scope and time window. A route quote or intent envelope is not a grant. The related Wave implementation uses HMAC-signed grants; that is not a wallet signature or independent public-key attestation.
+
+### Route Receipt
+A record binding the selected route/provider and decision inputs. Integrity binding does not grant permission or prove execution.
+
+### Outcome Verification
+Comparing observed results against the exact authorized intent. Simulated accounting, an executor receipt and validated ledger settlement support different claims.
+
+### Provenance
+Source, revision, time, actor and artifact relationships that allow a decision and its outcome to be traced. Provenance does not by itself establish truth.
+
+### Integration Spine
+The current reusable integration work connecting the Shellfish gateway, Wave Router and Control Room operator surface. Local candidates and their verification remain separate from public default-branch release readiness.
+
+### Coordination Whiteboard
+A human-readable view of assignments, evidence packets and reviews. It is not an authoritative ownership lease, durable scheduler or proof of a persistent running agent.
 
 ## Acronyms Reference
 
