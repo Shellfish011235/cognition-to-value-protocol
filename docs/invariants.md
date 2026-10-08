@@ -1,5 +1,7 @@
 # Protocol Invariants
 
+> **October 8, 2026 status clarification:** these are required properties of a conforming implementation, not a claim that the current scaffold enforces them. Placeholder cryptography, simulated settlement and unenforced halt behavior remain gaps; see [README](../README.md) and [threat model](./threat-model.md). Related implementations need their own entry-point and negative-test evidence. Passive observation and rejected proposals do not need to invoke financial execution; every eventual side effect must satisfy all applicable gates.
+
 ## Core Invariants
 
 These invariants MUST be maintained at all times. Violation of any invariant is a critical failure.
@@ -97,10 +99,10 @@ Human override signal MUST be able to halt any CAR operation immediately.
 ## Cross-Cutting Invariants
 
 ### INV-GLOBAL-001: Layer Integrity
-No layer may be bypassed. All data flows through the full stack.
+No required safety or authority gate may be bypassed for an eventual side effect. Observation, route preparation and rejected proposals may stop before financial execution.
 
 ### INV-GLOBAL-002: Audit Everything
-Every state transition must be logged with timestamp, actor, and rationale.
+Every consequential state transition must preserve timestamp, actor, rationale and artifact provenance. Minimize sensitive data in logs; evidence references need not expose raw private content.
 
 ### INV-GLOBAL-003: Fail Safe
 On any unhandled error, the system MUST halt, not proceed.
